@@ -1,0 +1,409 @@
+﻿<%@ Master Language="VB" AutoEventWireup="false" CodeBehind="Orari.master.vb" Inherits="Orari.Orari" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
+    
+<head runat="server">
+    <meta http-equiv="Page-Enter" content="blendTrans(Duration=1)" />
+    <meta http-equiv="Page-Exit" content="blendTrans(Duration=1)" />
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    
+    <link rel="Shortcut Icon" href="App_Themes/standard/images/iconaSito.ico" />
+
+    <link href="App_Themes/Standard/Orari.css" rel="stylesheet" />
+    <script src="Scripts/globale.js"></script>
+    <script src="Scripts/SpostamentoLinguette.js"></script>
+
+    <%--<script src="Scripts/jquery.js"></script>
+    <script src="Scripts/jquery-1.11.1.min.js"></script>--%>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="Scripts/jquery-ui.js"></script>
+
+    <link rel="stylesheet" href="App_Themes/standard/jquery-ui.css" />
+    <script src="http://my.mobfox.com/nativead.js"></script>
+
+    <title>Orari</title>
+
+    <script type ="text/javascript">
+        // Funzioni eseguite anche dopo POSTBACK parziali (AJAX)
+
+        function pageLoad(sender, args) {
+            // draggable
+            $(".draggable").draggable({
+                handle: 'div.dragbar'
+            });
+
+            // datepicker
+            $(".datepicker").datepicker({
+                //showAnim: "slide",
+                dateFormat: "dd/mm/yy", firstDate: 1, firstDay: 1, minDate: "01/01/1910", maxDate: "31/12/2050",
+
+                monthNames: ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"],
+                monthNamesShort: ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"],
+                dayNames: ["Domenica", "Lunedì", "Martedì", "Mecoledì", "Giovedì", "Venerdì", "Sabato"],
+                dayNamesShort: ["Dom", "Lun", "Mar", "Mer", "Gio", "Ven", "Sab"],
+                dayNamesMin: ["Do", "Lu", "Ma", "Me", "Gi", "Ve", "Sa"],
+
+                //showOn: "button", buttonImage: "App_Themes/standard/images/icona_CALENDARIO.png", buttonText: "Apri calendario",
+
+                changeYear: true, //changeMonth: true, 
+
+                showButtonPanel: true, currentText: "Oggi", closeText: "Chiudi"
+            });
+        }
+    </script>
+
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body>
+    <form id="form1" runat="server" >
+        <asp:ScriptManager ID="ScriptManager1" EnablePageMethods ="true" runat="server"></asp:ScriptManager>
+
+        <asp:UpdatePanel id="uppPopup" runat="server">
+            <ContentTemplate>
+                <div id="divBloccaFinestra" class="bloccafinestra" runat="server" Visible="False"></div>
+
+                <div id="divPopup" class="popup draggable" runat="server" Visible="False">
+                    <div class="icona_informazione">
+                        <ul id="ulPopup" runat="server">
+                        </ul>
+                    </div>
+
+                    <asp:Button id="cmdOK" class="bottone" runat="server" Text="OK" />
+
+                    <div class="clear"></div>
+                </div>
+            </ContentTemplate>
+        </asp:UpdatePanel>
+  
+        <div id="vistamese" runat="server" 
+            class="linguettaMasterMese ui-draggable">
+            <div id="corpoMese" runat="server" style="position: relative; float: left; top: 9px; display: inline-block; width: 100%;">
+                <asp:Label ID="lblMese" runat="server" Text="Label" CssClass="etichettamese"></asp:Label>
+                <div id="divCalendario" runat="server" style="width:100%;">
+                    <hr />
+                    <table style="width: 249px">
+                        <tr style="border-bottom: solid 1px;">
+                           <td class="cellaCalendarioIntestRed">
+                                <asp:Label ID="Label1" runat="server" Text="D" class="etichettagiornored"></asp:Label>
+                           </td>
+                           <td class="cellaCalendarioIntest">
+                                <asp:Label ID="Label2" runat="server" Text="L" class="etichettagiorno"></asp:Label>
+                            </td>
+                            <td class="cellaCalendarioIntest">
+                                <asp:Label ID="Label3" runat="server" Text="M" class="etichettagiorno"></asp:Label>
+                            </td>
+                            <td class="cellaCalendarioIntest">
+                                <asp:Label ID="Label4" runat="server" Text="M" class="etichettagiorno"></asp:Label>
+                            </td>
+                            <td class="cellaCalendarioIntest">
+                                <asp:Label ID="Label5" runat="server" Text="G" class="etichettagiorno"></asp:Label>
+                            </td>
+                            <td class="cellaCalendarioIntest">
+                                <asp:Label ID="Label6" runat="server" Text="V" class="etichettagiorno"></asp:Label>
+                            </td>
+                            <td class="cellaCalendarioIntestRed">
+                                <asp:Label ID="Label7" runat="server" Text="S" class="etichettagiornored"></asp:Label>
+                            </td>
+                       </tr>
+                        <tr style="border-bottom: solid 1px;">
+                            <td class="cellaCalendarioRed" id="cellaCal1" runat="server">
+                                <asp:Label ID="lbl1" runat="server" Text="7" class="etichettagiornored"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl1d" runat="server" Text="7" class="etichettagiornored" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendario" id="cellaCal2" runat="server">
+                                <asp:Label ID="lbl2" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl2d" runat="server" Text="8" class="etichettagiornod" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendario" id="cellaCal3" runat="server">
+                                <asp:Label ID="lbl3" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl3d" runat="server" Text="8" class="etichettagiornod" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendario" id="cellaCal4" runat="server">
+                                <asp:Label ID="lbl4" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl4d" runat="server" Text="8" class="etichettagiornod" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendario" id="cellaCal5" runat="server">
+                                <asp:Label ID="lbl5" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl5d" runat="server" Text="8" class="etichettagiornod" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendario" id="cellaCal6" runat="server">
+                                <asp:Label ID="lbl6" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl6d" runat="server" Text="8" class="etichettagiornod" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendarioRed" id="cellaCal7" runat="server">
+                                <asp:Label ID="lbl7" runat="server" Text="8" class="etichettagiornored"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl7d" runat="server" Text="8" class="etichettagiornored" ></asp:Label>
+                            </td>
+                        </tr>
+                        <tr style="border-bottom: solid 1px;">
+                            <td class="cellaCalendarioRed" id="cellaCal8" runat="server">
+                                <asp:Label ID="lbl8" runat="server" Text="8" class="etichettagiornored"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl8d" runat="server" Text="7" class="etichettagiornored" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendario" id="cellaCal9" runat="server">
+                                <asp:Label ID="lbl9" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl9d" runat="server" Text="7" class="etichettagiornod" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendario" id="cellaCal10" runat="server">
+                                <asp:Label ID="lbl10" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl10d" runat="server" Text="7" class="etichettagiornod" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendario" id="cellaCal11" runat="server">
+                                <asp:Label ID="lbl11" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl11d" runat="server" Text="7" class="etichettagiornod" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendario" id="cellaCal12" runat="server">
+                                <asp:Label ID="lbl12" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl12d" runat="server" Text="7" class="etichettagiornod" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendario" id="cellaCal13" runat="server">
+                                <asp:Label ID="lbl13" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl13d" runat="server" Text="7" class="etichettagiornod" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendarioRed" id="cellaCal14" runat="server">
+                                <asp:Label ID="lbl14" runat="server" Text="8" class="etichettagiornored"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl14d" runat="server" Text="7" class="etichettagiornored" ></asp:Label>
+                           </td>
+                        </tr>
+                        <tr style="border-bottom: solid 1px;">
+                            <td class="cellaCalendarioRed" id="cellaCal15" runat="server">
+                                <asp:Label ID="lbl15" runat="server" Text="8" class="etichettagiornored"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl15d" runat="server" Text="7" class="etichettagiornored" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendario" id="cellaCal16" runat="server">
+                                <asp:Label ID="lbl16" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl16d" runat="server" Text="7" class="etichettagiornod" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendario" id="cellaCal17" runat="server">
+                                <asp:Label ID="lbl17" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl17d" runat="server" Text="7" class="etichettagiornod" ></asp:Label>
+                           </td>
+                            <td class="cellaCalendario" id="cellaCal18" runat="server">
+                                <asp:Label ID="lbl18" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl18d" runat="server" Text="7" class="etichettagiornod" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendario" id="cellaCal19" runat="server">
+                                <asp:Label ID="lbl19" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl19d" runat="server" Text="7" class="etichettagiornod" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendario" id="cellaCal20" runat="server">
+                                <asp:Label ID="lbl20" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl20d" runat="server" Text="7" class="etichettagiornod" ></asp:Label>
+                           </td>
+                            <td class="cellaCalendarioRed" id="cellaCal21" runat="server">
+                                <asp:Label ID="lbl21" runat="server" Text="8" class="etichettagiornored"></asp:Label>
+                                 <br />
+                                <asp:Label ID="lbl21d" runat="server" Text="7" class="etichettagiornored" ></asp:Label>
+                           </td>
+                        </tr>
+                        <tr style="border-bottom: solid 1px;">
+                            <td class="cellaCalendarioRed" id="cellaCal22" runat="server">
+                                <asp:Label ID="lbl22" runat="server" Text="8" class="etichettagiornored"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl22d" runat="server" Text="7" class="etichettagiornored" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendario" id="cellaCal23" runat="server">
+                                <asp:Label ID="lbl23" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl23d" runat="server" Text="7" class="etichettagiornod" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendario" id="cellaCal24" runat="server">
+                                <asp:Label ID="lbl24" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl24d" runat="server" Text="7" class="etichettagiornod" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendario" id="cellaCal25" runat="server">
+                                <asp:Label ID="lbl25" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl25d" runat="server" Text="7" class="etichettagiornod" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendario" id="cellaCal26" runat="server">
+                                <asp:Label ID="lbl26" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                 <br />
+                                <asp:Label ID="lbl26d" runat="server" Text="7" class="etichettagiornod" ></asp:Label>
+                           </td>
+                            <td class="cellaCalendario" id="cellaCal27" runat="server">
+                                <asp:Label ID="lbl27" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl27d" runat="server" Text="7" class="etichettagiornod" ></asp:Label>
+                           </td>
+                            <td class="cellaCalendarioRed" id="cellaCal28" runat="server">
+                                <asp:Label ID="lbl28" runat="server" Text="8" class="etichettagiornored"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl28d" runat="server" Text="7" class="etichettagiornored" ></asp:Label>
+                            </td>
+                        </tr>
+                        <tr style="border-bottom: solid 1px;">
+                            <td class="cellaCalendarioRed" id="cellaCal29" runat="server">
+                                <asp:Label ID="lbl29" runat="server" Text="8" class="etichettagiornored"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl29d" runat="server" Text="7" class="etichettagiornored" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendario" id="cellaCal30" runat="server">
+                                <asp:Label ID="lbl30" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl30d" runat="server" Text="7" class="etichettagiornod" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendario" id="cellaCal31" runat="server">
+                                <asp:Label ID="lbl31" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl31d" runat="server" Text="7" class="etichettagiornod" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendario" id="cellaCal32" runat="server">
+                                <asp:Label ID="lbl32" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl32d" runat="server" Text="7" class="etichettagiornod" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendario" id="cellaCal33" runat="server">
+                                <asp:Label ID="lbl33" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                 <br />
+                                <asp:Label ID="lbl33d" runat="server" Text="7" class="etichettagiornod" ></asp:Label>
+                           </td>
+                            <td class="cellaCalendario" id="cellaCal34" runat="server">
+                                <asp:Label ID="lbl34" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl34d" runat="server" Text="7" class="etichettagiornod" ></asp:Label>
+                           </td>
+                            <td class="cellaCalendarioRed" id="cellaCal35" runat="server">
+                                <asp:Label ID="lbl35" runat="server" Text="8" class="etichettagiornored"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl35d" runat="server" Text="7" class="etichettagiornored" ></asp:Label>
+                            </td>
+                        </tr>
+                        <tr style="border-bottom: solid 1px;">
+                            <td class="cellaCalendarioRed" id="cellaCal36" runat="server">
+                                <asp:Label ID="lbl36" runat="server" Text="8" class="etichettagiornored"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl36d" runat="server" Text="7" class="etichettagiornored" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendario" id="cellaCal37" runat="server">
+                                <asp:Label ID="lbl37" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl37d" runat="server" Text="7" class="etichettagiornod" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendario" id="cellaCal38" runat="server">
+                                <asp:Label ID="lbl38" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl38d" runat="server" Text="7" class="etichettagiornod" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendario" id="cellaCal39" runat="server">
+                                <asp:Label ID="lbl39" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl39d" runat="server" Text="7" class="etichettagiornod" ></asp:Label>
+                            </td>
+                            <td class="cellaCalendario" id="cellaCal40" runat="server">
+                                <asp:Label ID="lbl40" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                 <br />
+                                <asp:Label ID="lbl40d" runat="server" Text="7" class="etichettagiornod" ></asp:Label>
+                           </td>
+                            <td class="cellaCalendario" id="cellaCal41" runat="server">
+                                <asp:Label ID="lbl41" runat="server" Text="8" class="etichettagiorno"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl41d" runat="server" Text="7" class="etichettagiornod" ></asp:Label>
+                           </td>
+                            <td class="cellaCalendarioRed" id="cellaCal42" runat="server">
+                                <asp:Label ID="lbl42" runat="server" Text="8" class="etichettagiornored"></asp:Label>
+                                <br />
+                                <asp:Label ID="lbl42d" runat="server" Text="7" class="etichettagiornored" ></asp:Label>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div id="cmdAbbassa" runat="server" style="position: absolute; left: 220px; top: 0px;">
+                <asp:ImageButton ID="imgChiude" runat="server" ImageUrl ="App_Themes/Standard/Images/icona_GIU.png" width="30px"/>
+            </div>
+        </div>
+
+        <div class="corpo">
+
+           <div id="divGraffetta" runat="server" class="graffetta"></div>
+           <div id="divFoto" runat="server" class="foto">
+               <asp:Image ID="imgFoto" runat="server" width="130px" />
+           </div>
+           <div id="divUsb" runat="server" class="usb"></div>
+           <div id="divSquadretta" runat="server" class="squadretta"></div>
+           <div id="divPostit" runat="server" class="postit"></div>
+           <div id="divPenna" runat="server" class="penna"></div>
+           <div id="divFloppy" runat="server" class="floppy"></div>
+           <div id="barraTasti" runat="server" class="barraTasti" >
+<%--                <div id="nomeutente" runat="server" class="nomeutente">
+                    <asp:Label ID="lblNomeUtente" runat="server" Text="Label" CssClass="etichettamenu"></asp:Label>
+                </div>--%>
+
+                <div id="nomeutente" runat="server" 
+                    class="linguettaMaster"
+                    onmouseover ="mouseOverImageSopraM('nomeutente',1);" 
+                    onmouseout ="mouseOutImageSopraM('nomeutente',1);" >
+                    <asp:Label ID="lblNomeUtente" runat="server" Text="Label" CssClass="etichettamenu"></asp:Label>
+                </div>
+
+            </div>
+
+            <div class="titolomaschera" id="divTitolo" runat="server">
+                <asp:Label ID="lblTitoloMaschera" runat="server" Text="Label" CssClass ="etichettaTitoloGrande" ></asp:Label>
+            </div>
+ 
+<%--            <div class="draggable" style="position: fixed; right: 10px; bottom: 100px; z-index: 1000;">
+                <span id="native_ad_2"></span>
+                <script>
+                    request_native_ad({
+                        html_template: '<style>.adwidget{position:relative;width:100%;border:1px solid #ccc;font:12px/20px "Lucida Grande",Verdana,sans-serif;color:#404040;background:#eee}.adwidget-list-link{display:block;line-height:26px;padding:10px 12px;font-weight:bold;color:#555;text-decoration:none}.adwidget-list-link:hover{background:#f7f7f7}.adwidget-list-link>img{float:left;width:50px;height:50px;margin:2px 12px 0 0}</style><div style="" class="adwidget"><ol style="list-style:none;margin:0;padding:0;border:0;font-size:100%;font:inherit;vertical-align:baseline"><li style="list-style:none"><a href="NATIVEASSET:CLICKURL" class="adwidget-list-link"><img src="NATIVEASSET:IMAGE:ICON">NATIVEASSET:TEXT:HEADLINE - NATIVEASSET:TEXT:RATING Stars <span style="display:block;font-size:11px;font-weight:normal;color:#999">By NATIVEASSET:TEXT:ADVERTISER - NATIVEASSET:TEXT:CTA</span></a></li></ol></div>',
+                        publisher_id: '19a8dbf2d83ecdce3f0546df047e05a3',
+                        allowed_ad_types: '',
+                        ad_num: 2
+                    });
+                </script>
+            </div>--%>
+
+            <asp:UpdatePanel id="uppConferma" runat="server" updatemode="Conditional">
+                <ContentTemplate>
+                </ContentTemplate>
+            </asp:UpdatePanel>
+
+            <asp:ContentPlaceHolder ID="cphCorpo" runat="server">
+            </asp:ContentPlaceHolder>
+
+            <asp:ContentPlaceHolder ID="cphNoAjax" runat="server">
+            </asp:ContentPlaceHolder>
+        </div>
+           
+        <asp:UpdateProgress id="uppAttenderePrego" runat="server" AssociatedUpdatePanelid="uppConferma" DisplayAfter="1">
+            <ProgressTemplate>
+                <div id="Div1" class="bloccafinestra" runat="server"></div>
+                    
+                <div id="Div2" class="popup draggable" runat="server">
+                    <p class="icona_loading">
+                    <img src="App_Themes/Standard/Images/loading.gif" />&nbsp;
+                    <span class="etichettapopup">Elaborazione in corso...</span>
+                    </p>
+                </div>
+            </ProgressTemplate>
+        </asp:UpdateProgress>
+    </form>
+</body>
+</html>
