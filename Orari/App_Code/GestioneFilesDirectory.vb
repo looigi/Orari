@@ -100,7 +100,15 @@ Public Class GestioneFilesDirectory
         Return sLine
     End Function
 
-    Public Sub ScansionaDirectory(Percorso As String, Modalita As String)
+	Public Function RitornaFilesRilevati() As String()
+		Return FilesRilevati
+	End Function
+
+	Public Function RitornaQuantiFilesRilevati() As Long
+		Return QuantiFilesRilevati
+	End Function
+
+	Public Sub ScansionaDirectory(Percorso As String, Modalita As String)
         Dim di As New IO.DirectoryInfo(Percorso)
         Dim diar1 As IO.DirectoryInfo() = di.GetDirectories
         Dim dra As IO.DirectoryInfo

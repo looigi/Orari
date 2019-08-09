@@ -116,23 +116,104 @@
 
             var bounds = new google.maps.LatLngBounds();
 
-            for (var j = 0; j < coordinate.length; j++) {
-                var marker = new google.maps.Marker({
+             for (var j = 0; j < coordinate.length; j++) {
+                /*var marker = new google.maps.Marker({
                     position: coordinate[j],
                     map: map,
                     icon: {url: 'App_Themes/Standard/Images/map-pin.png', scaledSize: new google.maps.Size(25, 25) },
                     title: 'Coord.: ' + orette[j] + '\nKm: ' + km[j]
-                });
+                }); */
 
                 bounds.extend(coordinate[j]);
 
-                markers.push(marker);
+                // markers.push(marker);
             }
 
             map.fitBounds(bounds);       
             map.panToBounds(bounds);     
 
             fPath.setMap(map);
+        }
+
+        function aggiungeMultimedia(multimediaX, multimediaY, tipologia, filetti) {
+            var tipo = [];
+            var tipol = tipologia.split(";");
+            for (var i = 0; i < tipol.length; i++) {
+                tipo.push(tipol[i]);
+            }
+            var nomefile = [];
+            var nfile = filetti.split(";");
+            for (var i = 0; i < nfile.length; i++) {
+                nomefile.push(nfile[i]);
+            }
+            var pathsX = [];
+            var inputX = multimediaX.split(";");
+            for (var i = 0; i < inputX.length; i++) {
+                pathsX.push(inputX[i]);
+            }
+            var pathsY = [];
+            var inputY = multimediaY.split(";");
+            for (var i = 0; i < inputY.length; i++) {
+                pathsY.push(inputY[i]);
+            }
+            var coordinate = [];
+            for (var j = 0; j < pathsX.length - 1; j++) {
+                coordinate.push(new google.maps.LatLng(pathsX[j].replace(",", "."), pathsY[j].replace(",", ".")));
+            }
+            var markers = [];
+            // for (var j = 0; j < pathsX.length - 1; j++) {
+            //     markers.push(new google.maps.LatLng(pathsX[j].replace(",", "."), pathsY[j].replace(",", ".")));
+            // }
+            for (var j = 0; j < coordinate.length; j++) {
+                var icona;
+                (function (marker) {
+                    if (tipo[j] == 'I') {
+                        icona = { url: nomefile[j], scaledSize: new google.maps.Size(25, 25) };
+                    } else {
+                        icona = { url: 'App_Themes/Standard/Images/video.png', scaledSize: new google.maps.Size(25, 25) };
+                    }
+
+                    var marker = new google.maps.Marker({
+                        position: coordinate[j],
+                        map: map,
+                        icon: icona,
+                        title: nomefile[j]
+                    });
+
+                    google.maps.event.addDomListener(marker, 'click', function () {
+                        disegnaImmagine(nomefile[j]);
+                    });
+
+                    markers.push(marker);
+                })(markers[i]);
+            }
+        }
+
+        function disegnaImmagine(nf) {
+            //var nf2 = anno + mese + nf + ".jpg";
+            //var urlAnno = "http://looigi.no-ip.biz:12345/Orari/Pennetta/" + anno + "/" + nf2;
+            //var urlYeah = "http://looigi.no-ip.biz:12345/Orari/Pennetta/Yeah/" + nf2;
+            //var urlVolti = "http://looigi.no-ip.biz:12345/Orari/Pennetta/Volti/" + nf2;
+
+            //var qualeUrl = "";
+            //if (imageExists(urlAnno)) {
+            //    qualeUrl = urlAnno;
+            //} else {
+            //    if (imageExists(urlYeah)) {
+            //        qualeUrl = urlYeah;
+            //    } else {
+            //        if (imageExists(urlVolti)) {
+            //            qualeUrl = urlVolti;
+            //        }
+            //    }
+            //}
+
+            //// alert(urlAnno);
+            //if (qualeUrl != '') {
+                window.open(nf);
+            //} else {
+            //    alert('Nessuna immagine rilevata')
+            //}
         }
     </script>
 </asp:Content>
@@ -244,12 +325,12 @@
             onmouseout ="mouseOutImageSin('noteSX',3);"  >
             <asp:ImageButton ID="imgNoteSX" runat="server" width="50px" Height="50px" ImageUrl ="App_Themes/Standard/Images/notesx.png" ToolTip="Gestione note" />
         </div>
-        <!-- <div id="dettDaySX" runat="server" 
+        <div id="dettDaySX" runat="server" 
             class="linguettaSin"
             onmouseover ="mouseOverImageSin('dettDaySX',4);" 
             onmouseout ="mouseOutImageSin('dettDaySX',4);"  >
             <asp:ImageButton ID="imgDettaglioGiornoSX" runat="server" width="50px" Height="50px" ImageUrl ="App_Themes/Standard/Images/latlng.jpg" ToolTip="Dettaglio giorno" />
-        </div> -->
+        </div>
     </div>
 
     <div id="divBarraDes" runat="server" style="width:3px; height: 35%; top: 35%; left:99%; position: absolute; ">
@@ -271,12 +352,12 @@
             onmouseout ="mouseOutImageDes('noteDX',3);"  >
             <asp:ImageButton ID="imgNoteDX" runat="server" width="50px" Height="50px" ImageUrl ="App_Themes/Standard/Images/notedx.png" ToolTip="Gestione note" />
         </div>
-        <!-- <div id="dettDayDX" runat="server" 
+        <div id="dettDayDX" runat="server" 
             class="linguettaDes"
             onmouseover ="mouseOverImageDes('dettDayDX',4);" 
             onmouseout ="mouseOutImageDes('dettDayDX',4);"  >
             <asp:ImageButton ID="imgDettaglioGiornoDX" runat="server" width="50px" Height="50px" ImageUrl ="App_Themes/Standard/Images/latlng.jpg" ToolTip="Dettaglio giorno" />
-        </div> -->
+        </div>
     </div>
 
     <div id="pages" style="width: 1px; height: 1px; overflow: hidden; ">
@@ -449,17 +530,17 @@
         <asp:Label ID="lblDettaglio" runat="server" Text="Dettaglio giorno" CssClass ="etichetta"></asp:Label>
         &nbsp;&nbsp;&nbsp;
         <asp:Button ID="cmdChiudeDD" runat="server" Text="Chiude" CssClass="bottone" />
-        <div style="width: 100%; height: 70%; margin-top: 5px;">
-            <div id="map_canvas" runat="server" style="z-index: 100; width: 49%; height: 100%; border: 1px solid #aaaaaa; display: block; float: left;"></div>
-            <div id="divStatistiche" runat="server" style="z-index: 100; width: 49%; height: 100%; border: 1px solid #aaaaaa; display: block; float: left; margin-left: 5px;">
+        <div style="width: 100%; height: 93%; margin-top: 5px;">
+            <div id="map_canvas" runat="server" style="z-index: 100; width: 99%; height: 100%; border: 1px solid #aaaaaa; display: block; float: left;"></div>
+<%--            <div id="divStatistiche" runat="server" style="z-index: 100; width: 49%; height: 100%; border: 1px solid #aaaaaa; display: block; float: left; margin-left: 5px;">
                 <div style="width:100%; height: 100%; display: block; overflow: auto;">
                     <asp:TreeView ID="tvDati" runat="server" CssClass ="Albero">
                     </asp:TreeView>
                 </div>
-            </div>
+            </div>--%>
         </div>
-        <div id="divTimeline" runat="server" style="width:99%; height: 25%; border: 1px solid  #808080; overflow: auto; display: block; margin-top: 3px;">
-        </div>
+<%--        <div id="divTimeline" runat="server" style="width:99%; height: 25%; border: 1px solid  #808080; overflow: auto; display: block; margin-top: 3px;">
+        </div>--%>
     </div>
 </asp:Content>
 
