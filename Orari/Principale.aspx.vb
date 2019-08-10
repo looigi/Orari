@@ -62,6 +62,7 @@ Public Class Principale
 
 		lblRicercati.Text = ""
 		divDettaglioGiorno.Visible = False
+		divBlocca.Visible = False
 		'Else
 		'End If
 	End Sub
@@ -1376,18 +1377,20 @@ Public Class Principale
 		Dim Giorno As Integer = Val(hdnGiorno.Value) + 1
 		Dim Mese As Integer = RitornaNumeroMese()
 
-		DisegnaMappa(Giorno, Mese)
-
 		divDettaglioGiorno.Visible = True
+		divBlocca.Visible = True
+
+		DisegnaMappa(Giorno, Mese)
 	End Sub
 
 	Protected Sub imgDettaglioGiornoDX_Click(sender As Object, e As ImageClickEventArgs) Handles imgDettaglioGiornoDX.Click
 		Dim Giorno As Integer = Val(hdnGiorno.Value) + 2
 		Dim Mese As Integer = RitornaNumeroMese()
 
-		DisegnaMappa(Giorno, Mese)
-
 		divDettaglioGiorno.Visible = True
+		divBlocca.Visible = True
+
+		DisegnaMappa(Giorno, Mese)
 	End Sub
 
 	Private NomiOperazioni() As String = {"Processo Chiuso", "Processo Aperto", "Applicazione In Chiusura", "Applicazione Aperta", "Utente Sloggato", "Windows Spento", "Windows Ripristinato", "Windows In Cambio Stato", "Windows Sospeso"}
@@ -1717,15 +1720,34 @@ Public Class Principale
 			Dim m2 As String = m.Trim
 			If m2.Length = 1 Then m2 = "0" & m2
 
+			Dim gf As New GestioneFilesDirectory
+			gf.ScansionaDirectorySingola("G:\gDrive\Pennetta\Locali")
+			Dim filettis() As String = gf.RitornaFilesRilevati
+			Dim qf As Integer = gf.RitornaQuantiFilesRilevati
+
+			Dim PercorsoPennetta As String = ConfigurationManager.AppSettings("percorsoPennetta")
+			If PercorsoPennetta.Substring(PercorsoPennetta.Length - 1) <> "\" Then
+				PercorsoPennetta &= "\"
+			End If
+
+			Dim PercorsoURLPennetta As String = ConfigurationManager.AppSettings("percorsoURLPennetta")
+			If PercorsoURLPennetta.Substring(PercorsoURLPennetta.Length - 1) <> "/" Then
+				PercorsoURLPennetta &= "/"
+			End If
+
+			'Response.Write(PercorsoPennetta)
+			'Response.Write(PercorsoURLPennetta)
+			'Response.End()
+
 			For Each ff As String In nomeFile
 				Dim fff As String = a & m2 & ff & ".jpg"
-				Dim urlAnno As String = "http://looigi.no-ip.biz:12345/Orari/Pennetta/" & a & "/" + fff
-				Dim urlYeah As String = "http://looigi.no-ip.biz:12345/Orari/Pennetta/Yeah/" & fff
-				Dim urlVolti As String = "http://looigi.no-ip.biz:12345/Orari/Pennetta/Volti/" & fff
+				Dim urlAnno As String = PercorsoURLPennetta & a & "/" + fff
+				Dim urlYeah As String = PercorsoURLPennetta & "Yeah/" & fff
+				Dim urlVolti As String = PercorsoURLPennetta & "Volti/" & fff
 
-				Dim pathAnno As String = Server.MapPath(".") & "\Pennetta\" & a & "\" + fff
-				Dim pathYeah As String = Server.MapPath(".") & "\Pennetta\Yeah\" & fff
-				Dim pathVolti As String = Server.MapPath(".") & "\Pennetta\Volti\" & fff
+				Dim pathAnno As String = PercorsoPennetta & a & "\" + fff
+				Dim pathYeah As String = PercorsoPennetta & "Yeah\" & fff
+				Dim pathVolti As String = PercorsoPennetta & "Volti\" & fff
 				Dim quale As String = ""
 
 				If File.Exists(pathAnno) Then
@@ -1737,18 +1759,24 @@ Public Class Principale
 						If File.Exists(pathVolti) Then
 							quale = urlVolti
 						Else
-							Dim gf As New GestioneFilesDirectory
-							gf.ScansionaDirectory(Server.MapPath(".") & "\Pennetta\Locali", "")
-							Dim filettis() As String = gf.RitornaFilesRilevati
-							Dim qf As Integer = gf.RitornaQuantiFilesRilevati
 							For ii As Integer = 1 To qf
-								If filettis(ii).Contains(fff) Then
-									quale = filettis(ii)
-									quale = quale.Replace(Server.MapPath(".") & "\", "http://looigi.no-ip.biz:12345/Orari/")
-									quale = quale.Replace("\", "/")
-									Exit For
+								'Response.Write(filettis(ii) & "->" & fff)
+								If filettis(ii) <> "" Then
+									If filettis(ii).Contains(fff) Then
+										'Response.Write("TROVATO: " & filettis(ii))
+										'Response.End()
+										quale = filettis(ii)
+										quale = quale.Replace(PercorsoPennetta, PercorsoURLPennetta)
+										quale = quale.Replace("\", "/")
+										Exit For
+									End If
 								End If
 							Next
+
+							'If quale = "" Then
+							'	Response.Write("NON TROVATO: " & fff)
+							'	Response.End()
+							'End If
 						End If
 					End If
 				End If
@@ -1764,65 +1792,65 @@ Public Class Principale
 			Next
 
 			Dim sb2 As System.Text.StringBuilder = New System.Text.StringBuilder()
-			sb2.Append("<script type='text/javascript' language='javascript'>")
-			sb2.Append("     calcRoutePrinc();")
-			sb2.Append("</script>")
+				sb2.Append("<script type='text/javascript' language='javascript'>")
+				sb2.Append("     calcRoutePrinc();")
+				sb2.Append("</script>")
 
-			ScriptManager.RegisterStartupScript(Me, Me.GetType(), "JSCRPRINC", sb2.ToString(), False)
+				ScriptManager.RegisterStartupScript(Me, Me.GetType(), "JSCRPRINC", sb2.ToString(), False)
 
-			Dim sb3 As System.Text.StringBuilder = New System.Text.StringBuilder()
-			sb3.Append("<script type='text/javascript' language='javascript'>")
-			sb3.Append("     aggiungeMultimedia('" & mX & "', '" & mY & "', '" & tipo & "', '" & filetti & "');")
-			sb3.Append("</script>")
+				Dim sb3 As System.Text.StringBuilder = New System.Text.StringBuilder()
+				sb3.Append("<script type='text/javascript' language='javascript'>")
+				sb3.Append("     aggiungeMultimedia('" & mX & "', '" & mY & "', '" & tipo & "', '" & filetti & "');")
+				sb3.Append("</script>")
 
-			ScriptManager.RegisterStartupScript(Me, Me.GetType(), "JSCRMARKERS", sb3.ToString(), False)
-			Dim sdx As String = ""
-			Dim sdy As String = ""
-			'Dim skm As String = ""
-			Dim sddh As String = ""
+				ScriptManager.RegisterStartupScript(Me, Me.GetType(), "JSCRMARKERS", sb3.ToString(), False)
+				Dim sdx As String = ""
+				Dim sdy As String = ""
+				'Dim skm As String = ""
+				Dim sddh As String = ""
 
-			For Each lx As String In dx
-				sdx &= lx & ";"
-			Next
-			For Each ly As String In dy
-				sdy &= ly & ";"
-			Next
-			'For Each lkm As String In km
-			'	skm &= lkm & ";"
-			'Next
-			For Each ldh As String In ddh
-				sddh &= ldh & ";"
-			Next
+				For Each lx As String In dx
+					sdx &= lx & ";"
+				Next
+				For Each ly As String In dy
+					sdy &= ly & ";"
+				Next
+				'For Each lkm As String In km
+				'	skm &= lkm & ";"
+				'Next
+				For Each ldh As String In ddh
+					sddh &= ldh & ";"
+				Next
 
-			sb3 = New System.Text.StringBuilder()
-			sb3.Append("<script type='text/javascript' language='javascript'>")
-			sb3.Append("     AggiungeMarkerPrinc('" & sdx & "', '" & sdy & "', '" & sddh & "', '0');")
-			sb3.Append("</script>")
+				sb3 = New System.Text.StringBuilder()
+				sb3.Append("<script type='text/javascript' language='javascript'>")
+				sb3.Append("     AggiungeMarkerPrinc('" & sdx & "', '" & sdy & "', '" & sddh & "', '0');")
+				sb3.Append("</script>")
 
-			ScriptManager.RegisterStartupScript(Me, Me.GetType(), "JSCRMPRINC", sb3.ToString(), False)
+				ScriptManager.RegisterStartupScript(Me, Me.GetType(), "JSCRMPRINC", sb3.ToString(), False)
 
-			'tvDati.Nodes.Clear()
+				'tvDati.Nodes.Clear()
 
-			'Dim root = New TreeNode
-			'root.Text = " Dettagli"
-			'root.ImageUrl = "~/App_Themes/Standard/Images/dettagli.png"
-			'tvDati.Nodes.Add(root)
+				'Dim root = New TreeNode
+				'root.Text = " Dettagli"
+				'root.ImageUrl = "~/App_Themes/Standard/Images/dettagli.png"
+				'tvDati.Nodes.Add(root)
 
-			'RiempieNodi("Km. effettuati", KmEffettuati, RitornaIconaInBaseaTipologia(14))
-			'RiempieNodi("Messaggi (" & Messaggi.Count & ")", Messaggi, RitornaIconaInBaseaTipologia(2))
-			'RiempieNodi("Canzoni ascoltate (" & CanzoniAscoltate.Count & ")", CanzoniAscoltate, RitornaIconaInBaseaTipologia(3))
-			'RiempieNodi("Cronologia (" & Cronologia.Count & ")", Cronologia, RitornaIconaInBaseaTipologia(4))
-			'RiempieNodi("Immagini Scaricate (" & ImmaginiScaricate.Count & ")", ImmaginiScaricate, RitornaIconaInBaseaTipologia(5))
-			'RiempieNodi("Log Activity (" & LogActivity.Count & ")", LogActivity, RitornaIconaInBaseaTipologia(6))
-			'RiempieNodi("Immagini Locali (" & ImmaginiLocali.Count & ")", ImmaginiLocali, RitornaIconaInBaseaTipologia(7))
-			'RiempieNodi("Partite Castelverde (" & PartiteCC.Count & ")", PartiteCC, RitornaIconaInBaseaTipologia(10))
-			'RiempieNodi("Telefonate (" & Telefonate.Count & ")", Telefonate, RitornaIconaInBaseaTipologia(11))
-			'RiempieNodi("Notifiche (" & Notifiche.Count & ")", Notifiche, RitornaIconaInBaseaTipologia(12))
-			'RiempieNodi("Sistema (" & Sistema.Count & ")", Sistema, RitornaIconaInBaseaTipologia(13))
+				'RiempieNodi("Km. effettuati", KmEffettuati, RitornaIconaInBaseaTipologia(14))
+				'RiempieNodi("Messaggi (" & Messaggi.Count & ")", Messaggi, RitornaIconaInBaseaTipologia(2))
+				'RiempieNodi("Canzoni ascoltate (" & CanzoniAscoltate.Count & ")", CanzoniAscoltate, RitornaIconaInBaseaTipologia(3))
+				'RiempieNodi("Cronologia (" & Cronologia.Count & ")", Cronologia, RitornaIconaInBaseaTipologia(4))
+				'RiempieNodi("Immagini Scaricate (" & ImmaginiScaricate.Count & ")", ImmaginiScaricate, RitornaIconaInBaseaTipologia(5))
+				'RiempieNodi("Log Activity (" & LogActivity.Count & ")", LogActivity, RitornaIconaInBaseaTipologia(6))
+				'RiempieNodi("Immagini Locali (" & ImmaginiLocali.Count & ")", ImmaginiLocali, RitornaIconaInBaseaTipologia(7))
+				'RiempieNodi("Partite Castelverde (" & PartiteCC.Count & ")", PartiteCC, RitornaIconaInBaseaTipologia(10))
+				'RiempieNodi("Telefonate (" & Telefonate.Count & ")", Telefonate, RitornaIconaInBaseaTipologia(11))
+				'RiempieNodi("Notifiche (" & Notifiche.Count & ")", Notifiche, RitornaIconaInBaseaTipologia(12))
+				'RiempieNodi("Sistema (" & Sistema.Count & ")", Sistema, RitornaIconaInBaseaTipologia(13))
 
-			'CreaTimeLine(OraMinima, OraMassima, Tutto)
-		End If
-	End Sub
+				'CreaTimeLine(OraMinima, OraMassima, Tutto)
+			End If
+    End Sub
 
 	'Private indiceNodi As Integer = 0
 
@@ -2041,6 +2069,7 @@ Public Class Principale
 
 	Protected Sub cmdChiudeDD_Click(sender As Object, e As EventArgs) Handles cmdChiudeDD.Click
 		divDettaglioGiorno.Visible = False
+		divBlocca.Visible = False
 	End Sub
 
 	Protected Sub imgStatSistema_Click(sender As Object, e As ImageClickEventArgs) Handles imgStatSistema.Click

@@ -181,7 +181,7 @@
                     });
 
                     google.maps.event.addDomListener(marker, 'click', function () {
-                        disegnaImmagine(nomefile[j]);
+                        disegnaImmagine(marker.title);
                     });
 
                     markers.push(marker);
@@ -190,6 +190,7 @@
         }
 
         function disegnaImmagine(nf) {
+            //alert(nf);
             //var nf2 = anno + mese + nf + ".jpg";
             //var urlAnno = "http://looigi.no-ip.biz:12345/Orari/Pennetta/" + anno + "/" + nf2;
             //var urlYeah = "http://looigi.no-ip.biz:12345/Orari/Pennetta/Yeah/" + nf2;
@@ -210,10 +211,29 @@
 
             //// alert(urlAnno);
             //if (qualeUrl != '') {
-                window.open(nf);
+            //    window.open(nf);
             //} else {
             //    alert('Nessuna immagine rilevata')
             //}
+            var img = document.getElementById("divImmagine");
+            img.style.display = "block";
+            img.style.backgroundImage = "url('" + nf + "')";;
+
+            // var img = document.getElementById("imgImmagine");
+            // img.src = nf;
+        }
+
+        // function apriImmagine() {
+        //     var div = document.getElementById("divImmagine");
+        //     div.style.display = "block";
+        // 
+        //     var img = document.getElementById("imgImmagine");
+        //     img.src = "App_Themes/Standard/Images/visualizzato.png";
+        // }
+
+        function chiudiImmagine() {
+            var img = document.getElementById("divImmagine");
+            img.style.display = "none";
         }
     </script>
 </asp:Content>
@@ -526,6 +546,8 @@
         <hr />
         <asp:Button ID="cmdChiude" runat="server" Text="Annulla" CssClass="bottone" />
     </div>
+
+    <div id="divBlocca" runat="server" class="bloccafinestra"></div>
     <div id="divDettaglioGiorno" runat="server" class="popupDettaglioGiorno">
         <asp:Label ID="lblDettaglio" runat="server" Text="Dettaglio giorno" CssClass ="etichetta"></asp:Label>
         &nbsp;&nbsp;&nbsp;
@@ -541,6 +563,11 @@
         </div>
 <%--        <div id="divTimeline" runat="server" style="width:99%; height: 25%; border: 1px solid  #808080; overflow: auto; display: block; margin-top: 3px;">
         </div>--%>
+    </div>
+
+    <div id="divImmagine" class="popupImmagine">
+        <div class="bottoneChiudi" onclick="chiudiImmagine()"></div>
+        <!-- <img id="imgImmagine" style="width: 100%; height: 100%;" /> -->
     </div>
 </asp:Content>
 

@@ -209,6 +209,38 @@ body {
     z-index: 1000;
 }
 
+.popupImmagine {
+    background-color: #fff;
+    position: fixed;
+    top: 5%;
+    left: 18%;
+    padding: 6px;
+    width: 65%;
+    height: 90%;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    -webkit-box-shadow: 0px 0px 8px 4px rgba(0, 0, 0, .3);
+    -moz-box-shadow: 0px 0px 8px 4px rgba(0, 0, 0, .3);
+    box-shadow: 0px 0px 8px 4px rgba(0, 0, 0, .3);
+    display: none;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index: 1001;
+}
+
+.bottoneChiudi {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    margin: 3px;
+    height: 30px;
+    width: 30px;
+    background-image: url('Images/elimina_quadrato.png');
+    z-index: 1002;
+}
+
 .popupDettaglioGiorno {
     background-color: #fcffc0;
     position: absolute;
@@ -243,7 +275,7 @@ body {
     -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=30)";
     opacity: .3;    
 
-    z-index: 800;
+    z-index: 901;
 }
 
 .casellatesto {
@@ -1288,6 +1320,7 @@ a:hover
     opacity: .85;
     vertical-align: top;
 }
+
 .mascheragriglia {
     padding: 8px;
     /*background-color: #d4a460;

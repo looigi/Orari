@@ -8,8 +8,11 @@ Public Class GestioneFilesDirectory
     Private RootDir As String
     Private Eliminati As Boolean
     Private Barra As String = "\"
+	Private DimensioniArrayAttualeDir As Long
+	Private DimensioniArrayAttualeFiles As Long
+	Private conta As Integer
 
-    Public Sub PrendeRoot(R As String)
+	Public Sub PrendeRoot(R As String)
         RootDir = R
     End Sub
 
@@ -108,36 +111,126 @@ Public Class GestioneFilesDirectory
 		Return QuantiFilesRilevati
 	End Function
 
-	Public Sub ScansionaDirectory(Percorso As String, Modalita As String)
-        Dim di As New IO.DirectoryInfo(Percorso)
-        Dim diar1 As IO.DirectoryInfo() = di.GetDirectories
-        Dim dra As IO.DirectoryInfo
+	Public Sub PulisceInfo()
+		Erase FilesRilevati
+		QuantiFilesRilevati = 0
+		Erase DirectoryRilevate
+		QuanteDirRilevate = 0
 
-        Eliminati = False
+		DimensioniArrayAttualeDir = 10000
+		DimensioniArrayAttualeFiles = 10000
 
-        Erase FilesRilevati
-        QuantiFilesRilevati = 0
-        Erase DirectoryRilevate
-        QuanteDirRilevate = 0
+		ReDim DirectoryRilevate(DimensioniArrayAttualeDir)
+		ReDim FilesRilevati(DimensioniArrayAttualeFiles)
+	End Sub
 
-        For Each dra In diar1
-            QuanteDirRilevate += 1
-            ReDim Preserve DirectoryRilevate(QuanteDirRilevate)
-            DirectoryRilevate(QuanteDirRilevate) = dra.FullName
+	Public Sub LeggeFilesDaDirectory(Percorso As String, Optional Filtro As String = "")
+		If Directory.Exists(Percorso) Then
+			Dim di As New IO.DirectoryInfo(Percorso)
 
-            LeggeDirectory(dra.FullName)
-        Next
+			Dim fi As New IO.DirectoryInfo(Percorso)
+			Dim fiar1 As IO.FileInfo() = di.GetFiles
+			Dim fra As IO.FileInfo
+			Dim Ok As Boolean = True
+			Dim Filtri() As String = Filtro.Split(";")
 
-        Select Case Modalita.ToUpper.Trim
-            Case "ELIMINA"
-                EliminaFilesRilevati()
-        End Select
+			For Each fra In fiar1
+				Ok = False
+				If Filtro <> "" Then
+					For i As Integer = 0 To Filtri.Length - 1
+						If fra.FullName.ToUpper.IndexOf(Filtri(i).ToUpper.Trim.Replace("*", "")) > -1 Then
+							Ok = True
+							Exit For
+						End If
+					Next
+				Else
+					Ok = True
+				End If
+				If Ok = True Then
+					QuantiFilesRilevati += 1
+					If QuantiFilesRilevati > DimensioniArrayAttualeFiles Then
+						DimensioniArrayAttualeFiles += 10000
+						ReDim Preserve FilesRilevati(DimensioniArrayAttualeFiles)
+					End If
+					FilesRilevati(QuantiFilesRilevati) = fra.FullName
+				End If
+			Next
+		End If
+	End Sub
 
-        Erase FilesRilevati
-        Erase DirectoryRilevate
-    End Sub
+	Private Sub LeggeTutto(Percorso As String, Filtro As String, lblAggiornamento As Label, SoloRoot As Boolean)
+		If Directory.Exists(Percorso) Then
+			Dim di As New IO.DirectoryInfo(Percorso)
+			Dim diar1 As IO.DirectoryInfo() = di.GetDirectories
+			Dim dra As IO.DirectoryInfo
 
-    Public Function RitornaEliminati() As Boolean
+			For Each dra In diar1
+				If lblAggiornamento Is Nothing = False Then
+					Conta += 1
+					If Conta = 2 Then
+						Conta = 0
+					End If
+				End If
+
+				QuanteDirRilevate += 1
+				If QuanteDirRilevate > DimensioniArrayAttualeDir Then
+					DimensioniArrayAttualeDir += 10000
+					ReDim Preserve DirectoryRilevate(DimensioniArrayAttualeDir)
+				End If
+				DirectoryRilevate(QuanteDirRilevate) = dra.FullName
+
+				LeggeFilesDaDirectory(dra.FullName, Filtro)
+
+				If Not SoloRoot Then
+					LeggeTutto(dra.FullName, Filtro, lblAggiornamento, SoloRoot)
+				End If
+			Next
+		End If
+	End Sub
+
+	Public Sub ScansionaDirectorySingola(Percorso As String, Optional Filtro As String = "", Optional lblAggiornamento As Label = Nothing, Optional SoloRoot As Boolean = False)
+		Eliminati = False
+
+		PulisceInfo()
+
+		QuanteDirRilevate += 1
+		DirectoryRilevate(QuanteDirRilevate) = Percorso
+
+		LeggeFilesDaDirectory(Percorso, Filtro)
+
+		LeggeTutto(Percorso, Filtro, lblAggiornamento, SoloRoot)
+	End Sub
+
+	Public Sub ScansionaDirectoryVecchia(Percorso As String, Modalita As String)
+		Dim di As New IO.DirectoryInfo(Percorso)
+		Dim diar1 As IO.DirectoryInfo() = di.GetDirectories
+		Dim dra As IO.DirectoryInfo
+
+		Eliminati = False
+
+		Erase FilesRilevati
+		QuantiFilesRilevati = 0
+		Erase DirectoryRilevate
+		QuanteDirRilevate = 0
+
+		For Each dra In diar1
+			QuanteDirRilevate += 1
+			ReDim Preserve DirectoryRilevate(QuanteDirRilevate)
+			DirectoryRilevate(QuanteDirRilevate) = dra.FullName
+
+			LeggeDirectory(dra.FullName)
+		Next
+
+		Select Case Modalita.ToUpper.Trim
+			Case "ELIMINA"
+				EliminaFilesRilevati()
+		End Select
+
+		Erase FilesRilevati
+		Erase DirectoryRilevate
+	End Sub
+
+	Public Function RitornaEliminati() As Boolean
         Return Eliminati
     End Function
 

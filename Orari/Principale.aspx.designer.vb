@@ -851,6 +851,15 @@ Partial Public Class Principale
     Protected WithEvents cmdChiude As Global.System.Web.UI.WebControls.Button
     
     '''<summary>
+    '''Controllo divBlocca.
+    '''</summary>
+    '''<remarks>
+    '''Campo generato automaticamente.
+    '''Per la modifica, spostare la dichiarazione di campo dal file di progettazione al file code-behind.
+    '''</remarks>
+    Protected WithEvents divBlocca As Global.System.Web.UI.HtmlControls.HtmlGenericControl
+    
+    '''<summary>
     '''Controllo divDettaglioGiorno.
     '''</summary>
     '''<remarks>

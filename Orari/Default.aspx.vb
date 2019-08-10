@@ -123,7 +123,7 @@ Public Class _Default
                 Dim GD As GestioneFilesDirectory = New GestioneFilesDirectory
                 GD.CreaDirectoryDaPercorso(Percorso)
                 GD.PrendeRoot(Server.MapPath("."))
-                GD.ScansionaDirectory(Percorso, "ELIMINA")
+                GD.ScansionaDirectoryVecchia(Percorso, "ELIMINA")
                 Eliminati = GD.RitornaEliminati
                 GD = Nothing
 
