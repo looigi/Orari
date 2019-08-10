@@ -240,6 +240,7 @@
 
 <asp:Content ID="Content2" ContentPlaceHolderID="cphCorpo" runat="server">
     <asp:HiddenField ID="hdnGiorno" runat="server" />
+    <asp:HiddenField ID="hdnGiornoMemorizzato" runat="server" />
     <asp:HiddenField ID="hdnRicorrenze" runat="server" />
 
     <div id="barraTasti" runat="server" class="barraTasti" >

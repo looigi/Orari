@@ -5,6 +5,8 @@ Imports System.Drawing.Imaging
 Public Class Principale
 	Inherits System.Web.UI.Page
 
+	Private NomiOperazioni() As String = {"Processo Chiuso", "Processo Aperto", "Applicazione In Chiusura", "Applicazione Aperta", "Utente Sloggato", "Windows Spento", "Windows Ripristinato", "Windows In Cambio Stato", "Windows Sospeso"}
+
 	Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
 		If idUtente = -1 Or idUtente = 0 Or Utenza = "" Then
 			Response.Redirect("Default.aspx")
@@ -12,6 +14,8 @@ Public Class Principale
 
 		'If Page.IsPostBack = False Then
 		If Not Page.IsPostBack Then
+			hdnGiornoMemorizzato.Value = ""
+
 			CaricaCombo()
 
 			LeggeOreStandard(Server.MapPath("."))
@@ -269,15 +273,26 @@ Public Class Principale
 	Private Sub EsegueSpostamentoLibroAGiornoAttuale()
 		Dim Quando As String
 
+		Dim Giorno As Integer = -1
+
+		If hdnGiornoMemorizzato.Value <> "" Then
+			Giorno = Val(hdnGiornoMemorizzato.Value) ' + 2
+			hdnGiornoMemorizzato.Value = ""
+		End If
+
 		If Request.QueryString("Giorno") = "" Then
-			If NomeMesi(Now.Month) = cmbMese.Text And Now.Year = cmbAnno.Text Then
-				Quando = Now.Day.ToString.Trim
-				Quando -= 1
-				If Quando / 2 <> Int(Quando / 2) Then
-					Quando -= 1
-				End If
+			If Giorno > -1 Then
+				Quando = Giorno
 			Else
-				Quando = 0
+				If NomeMesi(Now.Month) = cmbMese.Text And Now.Year = cmbAnno.Text Then
+					Quando = Now.Day.ToString.Trim
+					Quando -= 1
+					If Quando / 2 <> Int(Quando / 2) Then
+						Quando -= 1
+					End If
+				Else
+					Quando = 0
+				End If
 			End If
 		Else
 			Quando = Request.QueryString("Giorno")
@@ -1377,6 +1392,8 @@ Public Class Principale
 		Dim Giorno As Integer = Val(hdnGiorno.Value) + 1
 		Dim Mese As Integer = RitornaNumeroMese()
 
+		hdnGiornoMemorizzato.Value = Giorno
+
 		divDettaglioGiorno.Visible = True
 		divBlocca.Visible = True
 
@@ -1387,13 +1404,13 @@ Public Class Principale
 		Dim Giorno As Integer = Val(hdnGiorno.Value) + 2
 		Dim Mese As Integer = RitornaNumeroMese()
 
+		hdnGiornoMemorizzato.Value = Giorno
+
 		divDettaglioGiorno.Visible = True
 		divBlocca.Visible = True
 
 		DisegnaMappa(Giorno, Mese)
 	End Sub
-
-	Private NomiOperazioni() As String = {"Processo Chiuso", "Processo Aperto", "Applicazione In Chiusura", "Applicazione Aperta", "Utente Sloggato", "Windows Spento", "Windows Ripristinato", "Windows In Cambio Stato", "Windows Sospeso"}
 
 	Private Sub DisegnaMappa(Giorno As Integer, Mese As Integer)
 		If LeggeImpostazioniDiBase(Server.MapPath("."), "SQL", True) = True Then
@@ -1792,65 +1809,65 @@ Public Class Principale
 			Next
 
 			Dim sb2 As System.Text.StringBuilder = New System.Text.StringBuilder()
-				sb2.Append("<script type='text/javascript' language='javascript'>")
-				sb2.Append("     calcRoutePrinc();")
-				sb2.Append("</script>")
+			sb2.Append("<script type='text/javascript' language='javascript'>")
+			sb2.Append("     calcRoutePrinc();")
+			sb2.Append("</script>")
 
-				ScriptManager.RegisterStartupScript(Me, Me.GetType(), "JSCRPRINC", sb2.ToString(), False)
+			ScriptManager.RegisterStartupScript(Me, Me.GetType(), "JSCRPRINC", sb2.ToString(), False)
 
-				Dim sb3 As System.Text.StringBuilder = New System.Text.StringBuilder()
-				sb3.Append("<script type='text/javascript' language='javascript'>")
-				sb3.Append("     aggiungeMultimedia('" & mX & "', '" & mY & "', '" & tipo & "', '" & filetti & "');")
-				sb3.Append("</script>")
+			Dim sb3 As System.Text.StringBuilder = New System.Text.StringBuilder()
+			sb3.Append("<script type='text/javascript' language='javascript'>")
+			sb3.Append("     aggiungeMultimedia('" & mX & "', '" & mY & "', '" & tipo & "', '" & filetti & "');")
+			sb3.Append("</script>")
 
-				ScriptManager.RegisterStartupScript(Me, Me.GetType(), "JSCRMARKERS", sb3.ToString(), False)
-				Dim sdx As String = ""
-				Dim sdy As String = ""
-				'Dim skm As String = ""
-				Dim sddh As String = ""
+			ScriptManager.RegisterStartupScript(Me, Me.GetType(), "JSCRMARKERS", sb3.ToString(), False)
+			Dim sdx As String = ""
+			Dim sdy As String = ""
+			'Dim skm As String = ""
+			Dim sddh As String = ""
 
-				For Each lx As String In dx
-					sdx &= lx & ";"
-				Next
-				For Each ly As String In dy
-					sdy &= ly & ";"
-				Next
-				'For Each lkm As String In km
-				'	skm &= lkm & ";"
-				'Next
-				For Each ldh As String In ddh
-					sddh &= ldh & ";"
-				Next
+			For Each lx As String In dx
+				sdx &= lx & ";"
+			Next
+			For Each ly As String In dy
+				sdy &= ly & ";"
+			Next
+			'For Each lkm As String In km
+			'	skm &= lkm & ";"
+			'Next
+			For Each ldh As String In ddh
+				sddh &= ldh & ";"
+			Next
 
-				sb3 = New System.Text.StringBuilder()
-				sb3.Append("<script type='text/javascript' language='javascript'>")
-				sb3.Append("     AggiungeMarkerPrinc('" & sdx & "', '" & sdy & "', '" & sddh & "', '0');")
-				sb3.Append("</script>")
+			sb3 = New System.Text.StringBuilder()
+			sb3.Append("<script type='text/javascript' language='javascript'>")
+			sb3.Append("     AggiungeMarkerPrinc('" & sdx & "', '" & sdy & "', '" & sddh & "', '0');")
+			sb3.Append("</script>")
 
-				ScriptManager.RegisterStartupScript(Me, Me.GetType(), "JSCRMPRINC", sb3.ToString(), False)
+			ScriptManager.RegisterStartupScript(Me, Me.GetType(), "JSCRMPRINC", sb3.ToString(), False)
 
-				'tvDati.Nodes.Clear()
+			'tvDati.Nodes.Clear()
 
-				'Dim root = New TreeNode
-				'root.Text = " Dettagli"
-				'root.ImageUrl = "~/App_Themes/Standard/Images/dettagli.png"
-				'tvDati.Nodes.Add(root)
+			'Dim root = New TreeNode
+			'root.Text = " Dettagli"
+			'root.ImageUrl = "~/App_Themes/Standard/Images/dettagli.png"
+			'tvDati.Nodes.Add(root)
 
-				'RiempieNodi("Km. effettuati", KmEffettuati, RitornaIconaInBaseaTipologia(14))
-				'RiempieNodi("Messaggi (" & Messaggi.Count & ")", Messaggi, RitornaIconaInBaseaTipologia(2))
-				'RiempieNodi("Canzoni ascoltate (" & CanzoniAscoltate.Count & ")", CanzoniAscoltate, RitornaIconaInBaseaTipologia(3))
-				'RiempieNodi("Cronologia (" & Cronologia.Count & ")", Cronologia, RitornaIconaInBaseaTipologia(4))
-				'RiempieNodi("Immagini Scaricate (" & ImmaginiScaricate.Count & ")", ImmaginiScaricate, RitornaIconaInBaseaTipologia(5))
-				'RiempieNodi("Log Activity (" & LogActivity.Count & ")", LogActivity, RitornaIconaInBaseaTipologia(6))
-				'RiempieNodi("Immagini Locali (" & ImmaginiLocali.Count & ")", ImmaginiLocali, RitornaIconaInBaseaTipologia(7))
-				'RiempieNodi("Partite Castelverde (" & PartiteCC.Count & ")", PartiteCC, RitornaIconaInBaseaTipologia(10))
-				'RiempieNodi("Telefonate (" & Telefonate.Count & ")", Telefonate, RitornaIconaInBaseaTipologia(11))
-				'RiempieNodi("Notifiche (" & Notifiche.Count & ")", Notifiche, RitornaIconaInBaseaTipologia(12))
-				'RiempieNodi("Sistema (" & Sistema.Count & ")", Sistema, RitornaIconaInBaseaTipologia(13))
+			'RiempieNodi("Km. effettuati", KmEffettuati, RitornaIconaInBaseaTipologia(14))
+			'RiempieNodi("Messaggi (" & Messaggi.Count & ")", Messaggi, RitornaIconaInBaseaTipologia(2))
+			'RiempieNodi("Canzoni ascoltate (" & CanzoniAscoltate.Count & ")", CanzoniAscoltate, RitornaIconaInBaseaTipologia(3))
+			'RiempieNodi("Cronologia (" & Cronologia.Count & ")", Cronologia, RitornaIconaInBaseaTipologia(4))
+			'RiempieNodi("Immagini Scaricate (" & ImmaginiScaricate.Count & ")", ImmaginiScaricate, RitornaIconaInBaseaTipologia(5))
+			'RiempieNodi("Log Activity (" & LogActivity.Count & ")", LogActivity, RitornaIconaInBaseaTipologia(6))
+			'RiempieNodi("Immagini Locali (" & ImmaginiLocali.Count & ")", ImmaginiLocali, RitornaIconaInBaseaTipologia(7))
+			'RiempieNodi("Partite Castelverde (" & PartiteCC.Count & ")", PartiteCC, RitornaIconaInBaseaTipologia(10))
+			'RiempieNodi("Telefonate (" & Telefonate.Count & ")", Telefonate, RitornaIconaInBaseaTipologia(11))
+			'RiempieNodi("Notifiche (" & Notifiche.Count & ")", Notifiche, RitornaIconaInBaseaTipologia(12))
+			'RiempieNodi("Sistema (" & Sistema.Count & ")", Sistema, RitornaIconaInBaseaTipologia(13))
 
-				'CreaTimeLine(OraMinima, OraMassima, Tutto)
-			End If
-    End Sub
+			'CreaTimeLine(OraMinima, OraMassima, Tutto)
+		End If
+	End Sub
 
 	'Private indiceNodi As Integer = 0
 
