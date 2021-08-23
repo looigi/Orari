@@ -1,6 +1,8 @@
 ﻿<%@ Page Title="" Language="vb" AutoEventWireup="false" validateRequest="false" MasterPageFile="Orari.Master" CodeBehind="Principale.aspx.vb" Inherits="Orari.Principale" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
-    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJ6LqMv1zV5Z_-wrETyen4ltCfMubiCzI"></script>
+    <%--<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJ6LqMv1zV5Z_-wrETyen4ltCfMubiCzI"></script>--%>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDFjUlTVu_YExgOXkxQczGDFEO3o1sMb-A&callback=initMap"></script>
+
         
     <script type="text/javascript" src="Scripts/bookflip.js"></script>
     <style>#bookflip{color:#aaaaaa;}</style>
