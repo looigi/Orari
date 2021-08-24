@@ -1839,12 +1839,14 @@ Public Class Principale
 				sddh &= ldh & ";"
 			Next
 
-			sb3 = New System.Text.StringBuilder()
-			sb3.Append("<script type='text/javascript' language='javascript'>")
-			sb3.Append("     AggiungeMarkerPrinc('" & sdx & "', '" & sdy & "', '" & sddh & "', '0');")
-			sb3.Append("</script>")
+			If sdx <> "" And sdy <> "" Then
+				sb3 = New System.Text.StringBuilder()
+				sb3.Append("<script type='text/javascript' language='javascript'>")
+				sb3.Append("     AggiungeMarkerPrinc('" & sdx & "', '" & sdy & "', '" & sddh & "', '0');")
+				sb3.Append("</script>")
 
-			ScriptManager.RegisterStartupScript(Me, Me.GetType(), "JSCRMPRINC", sb3.ToString(), False)
+				ScriptManager.RegisterStartupScript(Me, Me.GetType(), "JSCRMPRINC", sb3.ToString(), False)
+			End If
 
 			'tvDati.Nodes.Clear()
 

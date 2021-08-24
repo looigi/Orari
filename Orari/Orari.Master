@@ -13,6 +13,9 @@
     <link rel="Shortcut Icon" href="App_Themes/standard/images/iconaSito.ico" />
 
     <link href="App_Themes/Standard/Orari.css" rel="stylesheet" />
+    <%--<script src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>--%> 
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDFjUlTVu_YExgOXkxQczGDFEO3o1sMb-A&callback=initMap&sensor=false"></script>
+
     <script src="Scripts/globale.js"></script>
     <script src="Scripts/SpostamentoLinguette.js"></script>
 
